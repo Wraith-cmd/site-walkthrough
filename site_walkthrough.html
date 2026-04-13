@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Site Walkthrough</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a1a;min-height:100vh;}
+  .header{background:#1c3a5e;color:white;padding:16px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .header h1{font-size:18px;font-weight:700;}
+  .header p{font-size:12px;opacity:.75;margin-top:2px;}
+  .header-row{display:flex;justify-content:space-between;align-items:center;}
+  .progress-bar{background:rgba(255,255,255,.2);border-radius:4px;height:6px;margin-top:10px;}
+  .progress-fill{background:#4fc3f7;height:6px;border-radius:4px;transition:width .4s;}
+  .tabs{display:flex;background:white;border-bottom:2px solid #e0e0e0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:600;color:#666;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+  .tab.active{color:#1c3a5e;border-bottom-color:#1c3a5e;}
+  .content{padding:16px;max-width:600px;margin:0 auto;}
+  .card{background:white;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .card-label{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:10px;line-height:1.4;}
+  .card.answered{border-left:4px solid #4caf50;}
+  textarea,input[type="text"]{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:15px;font-family:inherit;resize:vertical;background:#fafafa;}
+  textarea:focus,input[type="text"]:focus{outline:none;border-color:#1c3a5e;background:white;}
+  textarea{min-height:70px;}
+  .yn-row{display:flex;gap:10px;}
+  .yn-btn{flex:1;padding:10px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fafafa;font-size:14px;font-weight:600;cursor:pointer;text-align:center;}
+  .yn-btn.yes.selected{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;}
+  .yn-btn.no.selected{background:#fce4ec;border-color:#e91e63;color:#c2185b;}
+  .yn-btn.na.selected{background:#e3f2fd;border-color:#1976d2;color:#1565c0;}
+  .photo-hint{font-size:11px;color:#aaa;margin-top:6px;}
+  .add-q-card{background:white;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);border:1.5px dashed #c0c0c0;}
+  .add-q-card h3{font-size:13px;color:#555;margin-bottom:10px;}
+  .add-q-row{display:flex;gap:8px;}
+  .add-q-row input[type="text"]{flex:1;}
+  .add-btn{background:#1c3a5e;color:white;border:none;border-radius:8px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;}
+  .type-select,.mode-select{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:8px 10px;font-size:14px;background:#fafafa;margin-bottom:8px;}
+  /* scope reminder banner */
+  .scope-banner{background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#5d4037;line-height:1.6;}
+  .scope-banner strong{display:block;margin-bottom:4px;color:#e65100;}
+  /* measurements */
+  .meas-section{margin-bottom:20px;}
+  .meas-header{background:#1c3a5e;color:white;border-radius:10px 10px 0 0;padding:12px 16px;font-size:14px;font-weight:700;}
+  .meas-body{background:white;border-radius:0 0 10px 10px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .meas-col-labels{display:grid;padding:6px 12px 2px;font-size:10px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:.5px;gap:6px;}
+  .cols-wall{grid-template-columns:1fr 72px 72px 80px 30px;}
+  .cols-area{grid-template-columns:1fr 72px 72px 80px 30px;}
+  .meas-row{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid #f0f0f0;align-items:center;}
+  .meas-row.cols-wall{grid-template-columns:1fr 72px 72px 80px 30px;}
+  .meas-row.cols-area{grid-template-columns:1fr 72px 72px 80px 30px;}
+  .meas-name{border:1.5px solid #e0e0e0;border-radius:7px;padding:8px 7px;font-size:13px;width:100%;background:#fafafa;font-family:inherit;}
+  .meas-name:focus{outline:none;border-color:#1c3a5e;background:white;}
+  .meas-num{border:1.5px solid #e0e0e0;border-radius:7px;padding:8px 6px;font-size:14px;width:100%;text-align:center;background:#fafafa;font-family:inherit;-moz-appearance:textfield;}
+  .meas-num::-webkit-outer-spin-button,.meas-num::-webkit-inner-spin-button{-webkit-appearance:none;}
+  .meas-num:focus{outline:none;border-color:#1c3a5e;background:white;}
+  .meas-result{background:#e8f4fd;border-radius:7px;padding:7px 4px;text-align:center;font-size:13px;font-weight:700;color:#1c3a5e;}
+  .meas-result span{display:block;font-size:9px;font-weight:500;color:#666;margin-top:1px;}
+  .meas-del{background:none;border:none;color:#ddd;font-size:18px;cursor:pointer;padding:0;}
+  .meas-del:active{color:#e91e63;}
+  .add-meas-btn{width:100%;padding:11px;background:#f5f7fa;border:none;border-top:1px solid #f0f0f0;color:#1c3a5e;font-size:13px;font-weight:700;cursor:pointer;}
+  .meas-total-bar{background:#1c3a5e;color:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;border-radius:0 0 10px 10px;}
+  .meas-total-bar .big{font-size:20px;}
+  .custom-meas-block{padding:10px 12px;border-bottom:1px solid #f0f0f0;}
+  .custom-top{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .custom-top .meas-name{flex:1;}
+  .custom-inputs{display:grid;grid-template-columns:1fr 1fr 80px;gap:6px;align-items:center;}
+  .vol-result{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;}
+  .grand-total-card{background:linear-gradient(135deg,#1c3a5e,#2d6a9f);color:white;border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 3px 10px rgba(28,58,94,.3);}
+  .grand-total-card h2{font-size:12px;opacity:.75;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;}
+  .gt-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:14px;}
+  .gt-row:last-child{border-bottom:none;font-weight:800;font-size:17px;padding-top:10px;}
+  .gt-row .val{font-weight:700;}
+  #summary-view{display:none;padding:16px;max-width:600px;margin:0 auto;}
+  .summary-card{background:white;border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .summary-card h3{font-size:13px;font-weight:700;color:#1c3a5e;margin-bottom:10px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;}
+  .summary-row{margin-bottom:8px;}
+  .summary-q{font-size:12px;color:#888;}
+  .summary-a{font-size:14px;font-weight:600;color:#1a1a1a;margin-top:2px;}
+  .summary-a.empty{color:#ccc;font-weight:400;font-style:italic;}
+  .copy-btn{background:#1c3a5e;color:white;border:none;border-radius:10px;padding:14px;width:100%;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+  .copy-btn.secondary{background:white;color:#1c3a5e;border:2px solid #1c3a5e;}
+  .stat-row{display:flex;gap:10px;margin-bottom:16px;}
+  .stat-box{flex:1;background:white;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .stat-box .num{font-size:28px;font-weight:800;color:#1c3a5e;}
+  .stat-box .lbl{font-size:11px;color:#888;margin-top:2px;}
+  .delete-q-btn{float:right;background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:0 0 4px 8px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div><h1>🏗️ Site Walkthrough</h1><p id="progress-text">0 of 0 answered</p></div>
+    <button onclick="toggleSummary()" id="summary-btn"
+      style="background:rgba(255,255,255,.15);border:none;color:white;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Summary</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div id="main-view"><div class="content" id="qc"></div></div>
+<div id="summary-view">
+  <div class="stat-row" id="stat-row"></div>
+  <div id="summary-content"></div>
+  <button class="copy-btn" onclick="copyAll()">📋 Copy All Notes</button>
+  <button class="copy-btn secondary" onclick="toggleSummary()">← Back to Questions</button>
+</div>
+
+<script>
+const CATS=[
+  {id:'bathroom',label:'🚽 Bathroom',questions:[
+    {id:'b0',text:'⚠️ FIREPLACE: Has existing tile been demoed off the office fireplace?',type:'yn'},
+    {id:'b0b',text:'Fireplace tile selection — what tile goes floor to ceiling?',type:'text'},
+    {id:'b0c',text:'Fireplace dimensions — width and height of tile area?',type:'text'},
+    {id:'b1',text:'Has all bathroom demo been completed? (tile, vanity, toilet removed?)',type:'yn'},
+    {id:'b2',text:'Is Denshield already on walls or do we need to install?',type:'yn'},
+    {id:'b3',text:'Wall tile dimensions — going floor to ceiling?',type:'text'},
+    {id:'b4',text:'Tile selection for bathroom walls and floor?',type:'text'},
+    {id:'b5',text:'New toilet — standard or specific model/brand?',type:'text'},
+    {id:'b6',text:'New vanity — size and style?',type:'text'},
+    {id:'b7',text:'Any plumbing rough-in issues to address?',type:'yn'},
+    {id:'b8',text:'Notes on bathroom/tile scope:',type:'notes'}
+  ]},
+  {id:'ceiling',label:'🎨 Ceiling',questions:[
+    {id:'c1',text:'Building is 50×100 = 5,000sf — confirmed?',type:'yn'},
+    {id:'c2',text:'Office area with drop ceiling confirmed excluded from paint? (~630sf)',type:'yn'},
+    {id:'c3',text:'Ceiling height in the main warehouse area?',type:'text'},
+    {id:'c4',text:'Ceiling condition — any repairs or patching needed before paint?',type:'yn'},
+    {id:'c5',text:'Paint color: white confirmed. Sheen preference (flat, eggshell)?',type:'text'},
+    {id:'c6',text:'Any beams, HVAC, or obstructions that complicate the paint?',type:'yn'},
+    {id:'c7',text:'Notes on ceiling scope:',type:'notes'}
+  ]},
+  {id:'walls',label:'🧱 Walls',questions:[
+    {id:'w1',text:'Partition wall length verified on-site — close to 50ft?',type:'text'},
+    {id:'w2',text:'Exact location of partition wall — centered or offset?',type:'text'},
+    {id:'w3',text:'Door openings needed in partition wall? How many, what size?',type:'text'},
+    {id:'w4',text:'Exterior concrete wall fur-out length verified — close to 80ft?',type:'text'},
+    {id:'w5',text:'Which exterior walls need furring? (all sides or specific?)',type:'text'},
+    {id:'w6',text:'Ceiling height for wall framing?',type:'text'},
+    {id:'w7',text:'Insulation required in furred-out wall cavity?',type:'yn'},
+    {id:'w8',text:'Confirmed: plywood backer on ALL new walls before drywall?',type:'yn'},
+    {id:'w9',text:'Drywall finish level — Level 3 confirmed?',type:'text'},
+    {id:'w10',text:'Electrical or plumbing running inside any of these walls?',type:'yn'},
+    {id:'w11',text:'Metal stud spacing — 16" or 24" OC?',type:'text'},
+    {id:'w12',text:'Notes on wall/partition scope:',type:'notes'}
+  ]},
+  {id:'paint',label:'🖌️ Paint',questions:[
+    {id:'p1',text:'Paint ALL new and existing walls confirmed?',type:'yn'},
+    {id:'p2',text:'Paint color(s) selected by client?',type:'text'},
+    {id:'p3',text:'Paint sheen (eggshell, satin, flat)?',type:'text'},
+    {id:'p4',text:'Existing wall condition — much patching/prep needed?',type:'yn'},
+    {id:'p5',text:'Number of coats?',type:'text'},
+    {id:'p6',text:'Any accent walls or areas with a different color?',type:'yn'},
+    {id:'p7',text:'Notes on paint scope:',type:'notes'}
+  ]},
+  {id:'floor',label:'🏠 Floor',questions:[
+    {id:'f1',text:'Total floor area ~5,000sf confirmed?',type:'yn'},
+    {id:'f2',text:'Current floor surface? (concrete slab, old tile, etc.)',type:'text'},
+    {id:'f3',text:'How bad is the leveling situation? Any low/high spots?',type:'text'},
+    {id:'f4',text:'Laminate style/brand selected by client?',type:'text'},
+    {id:'f5',text:'Transitions or thresholds needed at doorways?',type:'yn'},
+    {id:'f6',text:'Is the 630sf office area floor included or excluded?',type:'text'},
+    {id:'f7',text:'Any drains, posts, or obstacles in the slab?',type:'yn'},
+    {id:'f8',text:'Notes on floor scope:',type:'notes'}
+  ]},
+  {id:'general',label:'📋 General',questions:[
+    {id:'g1',text:'Client name / company:',type:'text'},
+    {id:'g2',text:'Site address:',type:'text'},
+    {id:'g3',text:'Space currently occupied or vacant?',type:'text'},
+    {id:'g4',text:'Target start date?',type:'text'},
+    {id:'g5',text:'Target completion date?',type:'text'},
+    {id:'g6',text:'Permits already pulled?',type:'yn'},
+    {id:'g7',text:"Client's on-site contact name and number?",type:'text'},
+    {id:'g8',text:'Any red flags or concerns noticed during walkthrough?',type:'notes'}
+  ]},
+  {id:'measurements',label:'📐 Measurements',questions:[]}
+];
+
+let answers = JSON.parse(localStorage.getItem('wt_ans')  || '{}');
+let customQ  = JSON.parse(localStorage.getItem('wt_cq')  || '[]');
+let meas     = JSON.parse(localStorage.getItem('wt_meas')|| 'null') || defaultMeas();
+let activeTab = 'bathroom';
+
+function defaultMeas(){
+  return {
+    walls:[
+      {id:'mw1',name:'Partition Wall',        lf:'50', h:''},
+      {id:'mw2',name:'Exterior Concrete Wall', lf:'80', h:''}
+    ],
+    floors:[
+      {id:'mf1',name:'Main Floor (50×100)',    l:'100', w:'50'},
+      {id:'mf2',name:'Office Area (exclude?)', l:'',    w:''}
+    ],
+    ceilings:[
+      {id:'mc1',name:'Main Ceiling (50×100)',  l:'100', w:'50'},
+      {id:'mc2',name:'Office Drop Ceiling',    l:'',    w:''}
+    ],
+    custom:[]
+  };
+}
+
+function save(){
+  localStorage.setItem('wt_ans',  JSON.stringify(answers));
+  localStorage.setItem('wt_cq',   JSON.stringify(customQ));
+  localStorage.setItem('wt_meas', JSON.stringify(meas));
+}
+
+function sfLF(lf,h){   const v=parseFloat(lf)*parseFloat(h);           return isNaN(v)||v<=0?null:Math.round(v); }
+function sfArea(l,w){  const v=parseFloat(l)*parseFloat(w);            return isNaN(v)||v<=0?null:Math.round(v); }
+function cfVol(l,w,h){ const v=parseFloat(l)*parseFloat(w)*parseFloat(h); return isNaN(v)||v<=0?null:Math.round(v*100)/100; }
+function cyVol(l,w,h){ const cf=cfVol(l,w,h); return cf?Math.round(cf/27*100)/100:null; }
+function fmt(n){ return n!=null?n.toLocaleString():'—'; }
+function sumSF(arr,fn){ return arr.reduce((s,r)=>{const v=fn(r);return v?s+v:s;},0); }
+function totals(){
+  const wt=sumSF(meas.walls,    r=>sfLF(r.lf,r.h));
+  const ft=sumSF(meas.floors,   r=>sfArea(r.l,r.w));
+  const ct=sumSF(meas.ceilings, r=>sfArea(r.l,r.w));
+  // only count SF-mode customs in grand total; volume is a different unit
+  const xt=sumSF(meas.custom,   r=>r.mode==='volume'?0:r.mode==='lf'?sfLF(r.lf,r.h):sfArea(r.l,r.w));
+  return{wt,ft,ct,xt,grand:wt+ft+ct+xt};
+}
+function esc(s){ return (s||'').replace(/"/g,'&quot;'); }
+
+function init(){ renderTabs(); renderContent(); updateProgress(); }
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=CATS.map(c=>
+    `<div class="tab ${c.id===activeTab?'active':''}" onclick="switchTab('${c.id}')">${c.label}</div>`
+  ).join('');
+}
+function switchTab(id){ activeTab=id; renderTabs(); renderContent(); }
+function renderContent(){ activeTab==='measurements'?renderMeasurements():renderQA(); }
+
+function allQ(){
+  const map={};
+  CATS.forEach(c=>{ map[c.id]=[...c.questions,...customQ.filter(q=>q.category===c.id)]; });
+  return map;
+}
+
+function renderQA(){
+  const qs=allQ()[activeTab]||[];
+  let html='';
+  // Scope reminder on General tab
+  if(activeTab==='general'){
+    html+=`<div class="scope-banner"><strong>📋 Scope Reminder</strong>
+      1. Bathroom remodel + fireplace tile (office area)<br>
+      2. Paint ceiling white — main area only, skip 630sf office<br>
+      3. Partition wall ~50ft + fur out exterior concrete ~80ft (plywood + drywall)<br>
+      4. Paint all new &amp; existing walls<br>
+      5. Level floor + laminate — ~5,000sf
+    </div>`;
+  }
+  qs.forEach(q=>{
+    const ans=answers[q.id]||{};
+    const done=ans.value!==undefined&&ans.value!=='';
+    const isC=customQ.find(cq=>cq.id===q.id);
+    html+=`<div class="card ${done?'answered':''}" id="card-${q.id}">`;
+    if(isC) html+=`<button class="delete-q-btn" onclick="deleteQ('${q.id}')">✕</button>`;
+    html+=`<div class="card-label">${q.text}</div>`;
+    if(q.type==='yn'){
+      const v=ans.value;
+      html+=`<div class="yn-row">
+        <button class="yn-btn yes ${v==='yes'?'selected':''}" onclick="setAns('${q.id}','yes','yn')">✓ Yes</button>
+        <button class="yn-btn no ${v==='no'?'selected':''}" onclick="setAns('${q.id}','no','yn')">✗ No</button>
+        <button class="yn-btn na ${v==='n/a'?'selected':''}" onclick="setAns('${q.id}','n/a','yn')">N/A</button>
+      </div>
+      <textarea placeholder="Notes (optional)..." style="margin-top:8px" oninput="setNote('${q.id}',this.value)">${ans.note||''}</textarea>`;
+    } else if(q.type==='text'){
+      html+=`<input type="text" placeholder="Enter answer..." value="${esc(ans.value||'')}" oninput="setAns('${q.id}',this.value,'text')">`;
+    } else {
+      html+=`<textarea placeholder="Enter notes..." oninput="setAns('${q.id}',this.value,'notes')">${ans.value||''}</textarea>`;
+    }
+    html+=`<div class="photo-hint">📷 Take a photo for reference if needed</div></div>`;
+  });
+  html+=`<div class="add-q-card">
+    <h3>➕ Add a question to this section</h3>
+    <select class="type-select" id="nqt">
+      <option value="text">Short answer</option>
+      <option value="yn">Yes / No</option>
+      <option value="notes">Notes</option>
+    </select>
+    <div class="add-q-row">
+      <input type="text" id="nqv" placeholder="Type your question...">
+      <button class="add-btn" onclick="addQ()">Add</button>
+    </div>
+  </div>`;
+  document.getElementById('qc').innerHTML=html;
+}
+
+function setAns(id,value,type){
+  if(!answers[id]) answers[id]={};
+  answers[id].value=value; answers[id].type=type;
+  save(); updateProgress();
+  const card=document.getElementById('card-'+id);
+  if(card) card.className='card '+(value?'answered':'');
+  if(type==='yn') renderQA();
+}
+function setNote(id,note){ if(!answers[id]) answers[id]={}; answers[id].note=note; save(); }
+function addQ(){
+  const text=document.getElementById('nqv').value.trim();
+  const type=document.getElementById('nqt').value;
+  if(!text) return;
+  customQ.push({id:'cq_'+Date.now(),text,type,category:activeTab});
+  save(); renderQA(); updateProgress();
+}
+function deleteQ(id){
+  customQ=customQ.filter(q=>q.id!==id); delete answers[id];
+  save(); renderQA(); updateProgress();
+}
+
+// ── MEASUREMENTS — stable inputs, no re-render on typing ──────────────────────
+function renderMeasurements(){
+  const t=totals();
+  let html='';
+  html+=`<div class="grand-total-card">
+    <h2>📐 Running Totals</h2>
+    <div class="gt-row"><span>Walls</span><span class="val" id="gt-walls">${fmt(t.wt)} SF</span></div>
+    <div class="gt-row"><span>Floors</span><span class="val" id="gt-floors">${fmt(t.ft)} SF</span></div>
+    <div class="gt-row"><span>Ceilings</span><span class="val" id="gt-ceilings">${fmt(t.ct)} SF</span></div>
+    ${t.xt>0?`<div class="gt-row"><span>Other</span><span class="val" id="gt-other">${fmt(t.xt)} SF</span></div>`:''}
+    <div class="gt-row"><span>Grand Total</span><span class="val" id="gt-grand">${fmt(t.grand)} SF</span></div>
+  </div>`;
+
+  // WALLS
+  html+=`<div class="meas-section">
+    <div class="meas-header">🧱 Walls — Linear Feet × Height = SF</div>
+    <div class="meas-body">
+    <div class="meas-col-labels cols-wall"><span>Name</span><span style="text-align:center">Lin Ft</span><span style="text-align:center">Height</span><span style="text-align:center">Sq Ft</span><span></span></div>
+    <div id="walls-rows">`;
+  meas.walls.forEach((r,i)=>{ html+=wallRow(r,i); });
+  html+=`</div><button class="add-meas-btn" onclick="addRow('walls')">+ Add Wall</button>
+    <div class="meas-total-bar"><span>Wall Total</span><span class="big" id="total-walls">${fmt(t.wt)} SF</span></div>
+  </div></div>`;
+
+  // FLOORS
+  html+=`<div class="meas-section">
+    <div class="meas-header">🏠 Floors — Length × Width = SF</div>
+    <div class="meas-body">
+    <div class="meas-col-labels cols-area"><span>Name</span><span style="text-align:center">Length</span><span style="text-align:center">Width</span><span style="text-align:center">Sq Ft</span><span></span></div>
+    <div id="floors-rows">`;
+  meas.floors.forEach((r,i)=>{ html+=areaRow(r,i,'floors'); });
+  html+=`</div><button class="add-meas-btn" onclick="addRow('floors')">+ Add Floor Area</button>
+    <div class="meas-total-bar"><span>Floor Total</span><span class="big" id="total-floors">${fmt(t.ft)} SF</span></div>
+  </div></div>`;
+
+  // CEILINGS
+  html+=`<div class="meas-section">
+    <div class="meas-header">🎨 Ceilings — Length × Width = SF</div>
+    <div class="meas-body">
+    <div class="meas-col-labels cols-area"><span>Name</span><span style="text-align:center">Length</span><span style="text-align:center">Width</span><span style="text-align:center">Sq Ft</span><span></span></div>
+    <div id="ceilings-rows">`;
+  meas.ceilings.forEach((r,i)=>{ html+=areaRow(r,i,'ceilings'); });
+  html+=`</div><button class="add-meas-btn" onclick="addRow('ceilings')">+ Add Ceiling Area</button>
+    <div class="meas-total-bar"><span>Ceiling Total</span><span class="big" id="total-ceilings">${fmt(t.ct)} SF</span></div>
+  </div></div>`;
+
+  // CUSTOM
+  html+=`<div class="meas-section">
+    <div class="meas-header">➕ Other Measurements</div>
+    <div class="meas-body">
+    <div id="custom-rows">`;
+  if(!meas.custom.length) html+=`<div style="padding:14px;color:#aaa;font-size:13px;text-align:center">Tap below to add anything else</div>`;
+  meas.custom.forEach((r,i)=>{ html+=customRow(r,i); });
+  html+=`</div><button class="add-meas-btn" onclick="addCustomRow()">+ Add Custom Measurement</button>
+    ${t.xt>0?`<div class="meas-total-bar"><span>Other Total</span><span class="big" id="total-custom">${fmt(t.xt)} SF</span></div>`:''}
+  </div></div>`;
+
+  document.getElementById('qc').innerHTML=html;
+}
+
+function wallRow(r,i){
+  const sf=sfLF(r.lf,r.h);
+  return `<div class="meas-row cols-wall" id="row-walls-${i}">
+    <input class="meas-name" value="${esc(r.name)}" placeholder="Wall name..." oninput="updateField('walls',${i},'name',this.value)">
+    <input class="meas-num" type="number" inputmode="decimal" value="${r.lf||''}" placeholder="ft" oninput="updateField('walls',${i},'lf',this.value)">
+    <input class="meas-num" type="number" inputmode="decimal" value="${r.h||''}" placeholder="ft" oninput="updateField('walls',${i},'h',this.value)">
+    <div class="meas-result" id="sf-walls-${i}">${fmt(sf)}<span>sq ft</span></div>
+    <button class="meas-del" onclick="deleteRow('walls',${i})">✕</button>
+  </div>`;
+}
+function areaRow(r,i,sec){
+  const sf=sfArea(r.l,r.w);
+  return `<div class="meas-row cols-area" id="row-${sec}-${i}">
+    <input class="meas-name" value="${esc(r.name)}" placeholder="Area name..." oninput="updateField('${sec}',${i},'name',this.value)">
+    <input class="meas-num" type="number" inputmode="decimal" value="${r.l||''}" placeholder="ft" oninput="updateField('${sec}',${i},'l',this.value)">
+    <input class="meas-num" type="number" inputmode="decimal" value="${r.w||''}" placeholder="ft" oninput="updateField('${sec}',${i},'w',this.value)">
+    <div class="meas-result" id="sf-${sec}-${i}">${fmt(sf)}<span>sq ft</span></div>
+    <button class="meas-del" onclick="deleteRow('${sec}',${i})">✕</button>
+  </div>`;
+}
+function customRow(r,i){
+  const isLF  = r.mode==='lf';
+  const isVol = r.mode==='volume';
+  const isArea= r.mode==='area';
+
+  let resultHTML;
+  if(isVol){
+    const cf=cfVol(r.l,r.w,r.h);
+    const cy=cyVol(r.l,r.w,r.h);
+    resultHTML=`<div class="meas-result vol-result" id="sf-custom-${i}">
+      ${cf!==null?cf.toLocaleString():'—'}<span>cu ft</span>
+      <span style="margin-top:3px;font-size:10px;color:#1c3a5e;font-weight:700;">${cy!==null?cy.toLocaleString()+' CY':'—'}</span>
+    </div>`;
+  } else {
+    const sf=isLF?sfLF(r.lf,r.h):sfArea(r.l,r.w);
+    resultHTML=`<div class="meas-result" id="sf-custom-${i}">${fmt(sf)}<span>sq ft</span></div>`;
+  }
+
+  // grid: volume needs 3 inputs so we use a 3-col grid; others use 2
+  const inputsHTML = isVol
+    ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 80px;gap:6px;align-items:center;">
+        <input class="meas-num" type="number" inputmode="decimal" value="${r.l||''}" placeholder="Length" oninput="updateField('custom',${i},'l',this.value)">
+        <input class="meas-num" type="number" inputmode="decimal" value="${r.w||''}" placeholder="Width"  oninput="updateField('custom',${i},'w',this.value)">
+        <input class="meas-num" type="number" inputmode="decimal" value="${r.h||''}" placeholder="Height" oninput="updateField('custom',${i},'h',this.value)">
+        ${resultHTML}
+      </div>`
+    : `<div class="custom-inputs">
+        ${isLF
+          ?`<input class="meas-num" type="number" inputmode="decimal" value="${r.lf||''}" placeholder="Lin Ft" oninput="updateField('custom',${i},'lf',this.value)">
+             <input class="meas-num" type="number" inputmode="decimal" value="${r.h||''}"  placeholder="Height" oninput="updateField('custom',${i},'h',this.value)">`
+          :`<input class="meas-num" type="number" inputmode="decimal" value="${r.l||''}"  placeholder="Length" oninput="updateField('custom',${i},'l',this.value)">
+             <input class="meas-num" type="number" inputmode="decimal" value="${r.w||''}"  placeholder="Width"  oninput="updateField('custom',${i},'w',this.value)">`
+        }
+        ${resultHTML}
+      </div>`;
+
+  return `<div class="custom-meas-block" id="row-custom-${i}">
+    <div class="custom-top">
+      <input class="meas-name" value="${esc(r.name)}" placeholder="Label..." oninput="updateField('custom',${i},'name',this.value)">
+      <select class="mode-select" style="margin:0;width:auto;flex:0 0 auto;" onchange="changeCustMode(${i},this.value)">
+        <option value="lf"     ${isLF  ?'selected':''}>LF × H</option>
+        <option value="area"   ${isArea?'selected':''}>L × W</option>
+        <option value="volume" ${isVol ?'selected':''}>L × W × H</option>
+      </select>
+      <button class="meas-del" onclick="deleteRow('custom',${i})" style="font-size:18px">✕</button>
+    </div>
+    ${inputsHTML}
+    ${isVol?'<div style="font-size:10px;color:#888;padding:4px 2px 2px">CF = cubic feet &nbsp;|&nbsp; CY = cubic yards (÷27) — useful for concrete, leveling compound</div>':''}
+  </div>`;
+}
+
+// Mode change requires different inputs — safe to re-render just measurements
+function changeCustMode(idx, value){
+  meas.custom[idx].mode = value;
+  save();
+  renderMeasurements();
+}
+
+// KEY: only update result cells & totals — never re-render inputs while typing
+function updateField(sec,idx,field,value){
+  meas[sec][idx][field]=value;
+  save();
+  const r=meas[sec][idx];
+  const cell=document.getElementById(`sf-${sec}-${idx}`);
+  if(!cell) return;
+
+  if(sec==='custom' && r.mode==='volume'){
+    const cf=cfVol(r.l,r.w,r.h);
+    const cy=cyVol(r.l,r.w,r.h);
+    cell.innerHTML=`${cf!==null?cf.toLocaleString():'—'}<span>cu ft</span><span style="margin-top:3px;font-size:10px;color:#1c3a5e;font-weight:700;">${cy!==null?cy.toLocaleString()+' CY':'—'}</span>`;
+  } else {
+    let sf;
+    if(sec==='walls'||(sec==='custom'&&r.mode==='lf')) sf=sfLF(r.lf,r.h);
+    else sf=sfArea(r.l,r.w);
+    cell.innerHTML=`${fmt(sf)}<span>sq ft</span>`;
+  }
+  refreshTotals();
+}
+
+function refreshTotals(){
+  const t=totals();
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('gt-walls',   fmt(t.wt)+' SF');
+  set('gt-floors',  fmt(t.ft)+' SF');
+  set('gt-ceilings',fmt(t.ct)+' SF');
+  set('gt-grand',   fmt(t.grand)+' SF');
+  set('gt-other',   fmt(t.xt)+' SF');
+  set('total-walls',    fmt(t.wt)+' SF');
+  set('total-floors',   fmt(t.ft)+' SF');
+  set('total-ceilings', fmt(t.ct)+' SF');
+  set('total-custom',   fmt(t.xt)+' SF');
+}
+
+function addRow(sec){
+  const id='m_'+Date.now();
+  if(sec==='walls')    meas.walls.push({id,name:'',lf:'',h:''});
+  if(sec==='floors')   meas.floors.push({id,name:'',l:'',w:''});
+  if(sec==='ceilings') meas.ceilings.push({id,name:'',l:'',w:''});
+  save(); renderMeasurements();
+}
+function addCustomRow(){ meas.custom.push({id:'m_'+Date.now(),name:'',mode:'lf',lf:'',h:'',l:'',w:''}); save(); renderMeasurements(); }
+function deleteRow(sec,idx){ meas[sec].splice(idx,1); save(); renderMeasurements(); }
+
+function updateProgress(){
+  const q=allQ(); let total=0,done=0;
+  Object.keys(q).forEach(k=>{
+    if(k==='measurements') return;
+    q[k].forEach(item=>{ total++; const a=answers[item.id]; if(a&&a.value!==undefined&&a.value!=='') done++; });
+  });
+  document.getElementById('progress-text').textContent=`${done} of ${total} answered`;
+  document.getElementById('progress-fill').style.width=total?`${Math.round(done/total*100)}%`:'0%';
+}
+
+function toggleSummary(){
+  const main=document.getElementById('main-view');
+  const sum=document.getElementById('summary-view');
+  const btn=document.getElementById('summary-btn');
+  const tabs=document.getElementById('tabs');
+  if(sum.style.display==='block'){
+    sum.style.display='none'; main.style.display='block'; tabs.style.display='flex'; btn.textContent='Summary';
+  } else {
+    buildSummary(); main.style.display='none'; tabs.style.display='none'; sum.style.display='block'; btn.textContent='← Back';
+  }
+}
+
+function buildSummary(){
+  const q=allQ(); let total=0,done=0;
+  Object.keys(q).forEach(k=>{
+    if(k==='measurements') return;
+    q[k].forEach(item=>{ total++; const a=answers[item.id]; if(a&&a.value!==undefined&&a.value!=='') done++; });
+  });
+  document.getElementById('stat-row').innerHTML=`
+    <div class="stat-box"><div class="num">${done}</div><div class="lbl">Answered</div></div>
+    <div class="stat-box"><div class="num">${total-done}</div><div class="lbl">Remaining</div></div>
+    <div class="stat-box"><div class="num">${total?Math.round(done/total*100):0}%</div><div class="lbl">Complete</div></div>`;
+  const t=totals();
+  let html=`<div class="summary-card"><h3>📐 Measurements</h3>`;
+  [...meas.walls,...meas.floors,...meas.ceilings,...meas.custom].forEach(r=>{
+    const sf=(r.lf!==undefined&&r.lf!=='')?sfLF(r.lf,r.h):(r.l!==undefined&&r.l!=='')?sfArea(r.l,r.w):null;
+    if(r.name||sf!==null) html+=`<div class="summary-row"><div class="summary-q">${r.name||'(unnamed)'}</div><div class="summary-a ${sf===null?'empty':''}">${sf!==null?sf.toLocaleString()+' SF':'—'}</div></div>`;
+  });
+  html+=`<div class="summary-row" style="margin-top:8px;border-top:1px solid #f0f0f0;padding-top:8px;">
+    <div class="summary-q">Grand Total</div>
+    <div class="summary-a" style="color:#1c3a5e;font-size:16px">${t.grand.toLocaleString()} SF</div>
+  </div></div>`;
+  CATS.forEach(cat=>{
+    if(cat.id==='measurements') return;
+    const qs=q[cat.id]||[];
+    html+=`<div class="summary-card"><h3>${cat.label}</h3>`;
+    qs.forEach(item=>{
+      const a=answers[item.id]||{};
+      let display=(a.value||''); if(a.note) display+=(display?' — ':'')+a.note;
+      html+=`<div class="summary-row"><div class="summary-q">${item.text}</div><div class="summary-a ${!display?'empty':''}">${display||'(not answered)'}</div></div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('summary-content').innerHTML=html;
+}
+
+function copyAll(){
+  const q=allQ(); const t=totals();
+  let text='SITE WALKTHROUGH NOTES\n'+'='.repeat(40)+'\n\n📐 MEASUREMENTS\n'+'-'.repeat(30)+'\n';
+  [...meas.walls,...meas.floors,...meas.ceilings,...meas.custom].forEach(r=>{
+    const sf=(r.lf!==undefined&&r.lf!=='')?sfLF(r.lf,r.h):(r.l!==undefined&&r.l!=='')?sfArea(r.l,r.w):null;
+    if(r.name||sf!==null) text+=`• ${r.name||'(unnamed)'}: ${sf!==null?sf.toLocaleString()+' SF':'—'}\n`;
+  });
+  text+=`TOTALS → Walls: ${t.wt.toLocaleString()} SF | Floors: ${t.ft.toLocaleString()} SF | Ceilings: ${t.ct.toLocaleString()} SF | Grand: ${t.grand.toLocaleString()} SF\n`;
+  CATS.forEach(cat=>{
+    if(cat.id==='measurements') return;
+    const qs=q[cat.id]||[];
+    text+=`\n${cat.label.toUpperCase()}\n${'-'.repeat(30)}\n`;
+    qs.forEach(item=>{
+      const a=answers[item.id]||{};
+      text+=`• ${item.text}\n  → ${a.value||'—'}${a.note?' ('+a.note+')':''}\n`;
+    });
+  });
+  navigator.clipboard.writeText(text).then(()=>{ alert('✅ Copied! Paste into a text or email.'); })
+    .catch(()=>{ alert('Tap and hold to copy manually.'); });
+}
+
+init();
+</script>
+</body>
+</html>
